@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Determine Version & Commit
+        id: vars
+        run: |
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "commit=$(git rev-parse --short HEAD)"   >> $GITHUB_OUTPUT
+
+      - name: Build (release version)
+        run: |
+          go build -ldflags "-X 'nookli/cmd.version=${{ steps.vars.outputs.version }}' \
+                             -X 'nookli/cmd.commit=${{ steps.vars.outputs.commit }}'" \
+                   -o nookli
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.vars.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload CLI to Release
+        uses: actions/upload-release-asset@v3
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./nookli
+          asset_name: nookli_${{ runner.os }}_${{ steps.vars.outputs.version }}
+          asset_content_type: application/octet-stream

@@ -1,0 +1,33 @@
+name: Staging Deploy
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  deploy-to-staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Build (staging version)
+        run: |
+          go build -ldflags "-X 'nookli/cmd.version=staging' \
+                             -X 'nookli/cmd.commit=$(git rev-parse --short HEAD)'" \
+                   -o nookli
+
+      - name: Deploy CLI to Staging Server
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host: ${{ secrets.STAGING_SERVER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: 22
+          source: "nookli"
+          target: "/opt/nookli/nookli-staging"

@@ -10,6 +10,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	// Populated via -ldflags
+	version = "dev"
+	commit  = "none"
+)
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the CLI version",
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Printf("nookli version %s (commit %s)\n", version, commit)
+	},
+}
+
 var rootCmd = &cobra.Command{
 	Use:   "nookli",
 	Short: "Nookli CLI — your Knowledge OS command line",
@@ -32,6 +46,8 @@ func Execute() {
 func init() {
 	// Here you can define global flags, e.g.:
 	// rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
+	rootCmd.AddCommand(versionCmd)
+
 }
 
 // At the bottom of cmd/root.go
