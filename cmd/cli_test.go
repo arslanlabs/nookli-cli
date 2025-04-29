@@ -1,4 +1,3 @@
-// cmd/cli_test.go
 package cmd
 
 import (
@@ -8,27 +7,27 @@ import (
 	db "nookli/db"
 )
 
-// runCLI runs the CLI in the current directory, resetting state
-// and closing the DB to avoid file‐lock issues.
+// runCLI runs the CLI in the current directory, resetting all cmd-package flags
+// and closing the DB to avoid file-lock issues.
 func runCLI(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 
-	// 1) Close any open DB from prior run
+	// 1) Close any open DB from a prior run
 	if db.DB != nil {
 		db.DB.Close()
 		db.DB = nil
 	}
 
-	// 2) Reset all package‐level flags
-	wsName = ""
-	wsDesc = ""
+	// 2) Reset all package-level flags for cmd/*
 	stackName = ""
 	stackWSID = 0
+
+	elemName = ""
+	elemDesc = ""
+
 	blockName = ""
 	blockContent = ""
 	blockStackID = 0
-	elemName = ""
-	elemDesc = ""
 
 	// 3) Execute the command
 	root := GetRootCmd()
@@ -36,10 +35,9 @@ func runCLI(t *testing.T, args ...string) (string, error) {
 	root.SetOut(buf)
 	root.SetErr(buf)
 	root.SetArgs(args)
-
 	_, err := root.ExecuteC()
 
-	// 4) Close the DB again so TempDir cleanup succeeds
+	// 4) Close the DB again so TempDir cleanup in tests succeeds
 	if db.DB != nil {
 		db.DB.Close()
 		db.DB = nil
