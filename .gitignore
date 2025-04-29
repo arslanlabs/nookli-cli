@@ -1,0 +1,17 @@
+# Binaries
+nookli.exe
+nookli
+
+# Go build folders
+/bin/
+/pkg/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# SQLite DB
+nookli.db
+
+# Editor swap files
+*.swp
