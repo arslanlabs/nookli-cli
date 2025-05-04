@@ -15,3 +15,6 @@ nookli.db
 
 # Editor swap files
 *.swp
+
+# WOrkspace files 
+*.code-workspace
