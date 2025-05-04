@@ -1,7 +1,9 @@
 package workspace
 
 import (
-	dbw "nookli/db/workspace"
+	"context"
+
+	svcw "nookli/pkg/service/workspace"
 
 	"github.com/spf13/cobra"
 )
@@ -11,6 +13,7 @@ var (
 	createDesc string
 )
 
+// Setup "create" command.
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new workspace",
@@ -19,11 +22,13 @@ var createCmd = &cobra.Command{
 			cmd.PrintErrln("Error: --name is required")
 			return
 		}
-		if err := dbw.Create(createName, createDesc); err != nil {
+		svc := svcw.NewService()
+		w, err := svc.Create(context.Background(), createName, createDesc)
+		if err != nil {
 			cmd.PrintErrln("Error creating workspace:", err)
 			return
 		}
-		cmd.Println("Workspace created:", createName)
+		cmd.Println("Workspace created:", w.Name)
 	},
 }
 

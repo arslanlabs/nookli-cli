@@ -1,7 +1,9 @@
 package workspace
 
 import (
-	dbw "nookli/db/workspace"
+	"context"
+
+	svcw "nookli/pkg/service/workspace"
 
 	"github.com/spf13/cobra"
 )
@@ -19,7 +21,8 @@ var deleteCmd = &cobra.Command{
 			cmd.PrintErrln("Error: --id and --yes are required")
 			return
 		}
-		if err := dbw.Delete(deleteID); err != nil {
+		svc := svcw.NewService()
+		if err := svc.Delete(context.Background(), deleteID); err != nil {
 			cmd.PrintErrln("Error deleting workspace:", err)
 			return
 		}

@@ -1,7 +1,9 @@
 package workspace
 
 import (
-	dbw "nookli/db/workspace"
+	"context"
+
+	svcw "nookli/pkg/service/workspace"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +26,8 @@ var updateCmd = &cobra.Command{
 			cmd.PrintErrln("Error: --name or --description is required")
 			return
 		}
-		if err := dbw.Update(updateID, updateName, updateDesc); err != nil {
+		svc := svcw.NewService()
+		if err := svc.Update(context.Background(), updateID, updateName, updateDesc); err != nil {
 			cmd.PrintErrln("Error updating workspace:", err)
 			return
 		}

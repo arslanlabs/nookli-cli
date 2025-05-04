@@ -1,7 +1,9 @@
 package workspace
 
 import (
-	dbw "nookli/db/workspace"
+	"context"
+
+	svcw "nookli/pkg/service/workspace"
 
 	"github.com/spf13/cobra"
 )
@@ -16,7 +18,8 @@ var showCmd = &cobra.Command{
 			cmd.PrintErrln("Error: --id is required")
 			return
 		}
-		w, err := dbw.Get(showID)
+		svc := svcw.NewService()
+		w, err := svc.Get(context.Background(), showID)
 		if err != nil {
 			cmd.PrintErrln("Error fetching workspace:", err)
 			return

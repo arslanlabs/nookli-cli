@@ -1,11 +1,12 @@
 package workspace
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"text/tabwriter"
 
-	dbw "nookli/db/workspace"
+	svcw "nookli/pkg/service/workspace"
 
 	"github.com/spf13/cobra"
 )
@@ -19,27 +20,22 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all workspaces",
 	Run: func(cmd *cobra.Command, args []string) {
-		wks, err := dbw.List()
+		svc := svcw.NewService()
+		wks, err := svc.List(context.Background())
 		if err != nil {
 			cmd.PrintErrln("Error listing workspaces:", err)
 			return
 		}
 		out := cmd.OutOrStdout()
 
-		// JSON output
 		if listOutput == "json" {
 			enc := json.NewEncoder(out)
 			enc.SetIndent("", "  ")
-			if err := enc.Encode(wks); err != nil {
-				cmd.PrintErrln("Error encoding JSON:", err)
-			}
+			enc.Encode(wks)
 			return
 		}
-
-		// Verbose tabular output
 		if listVerbose {
 			tw := tabwriter.NewWriter(out, 0, 4, 2, ' ', 0)
-			// header
 			fmt.Fprintln(tw, "ID\tName\tDescription\tCreatedAt")
 			for _, w := range wks {
 				fmt.Fprintf(tw, "%d\t%s\t%s\t%s\n",
@@ -48,8 +44,6 @@ var listCmd = &cobra.Command{
 			tw.Flush()
 			return
 		}
-
-		// Simple text output
 		for _, w := range wks {
 			fmt.Fprintf(out, "%d: %s — %s\n", w.ID, w.Name, w.Description)
 		}

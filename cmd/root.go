@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"nookli/db"
-
 	workspacecmd "nookli/cmd/workspace"
+	"nookli/db"
 
 	"github.com/spf13/cobra"
 )
@@ -24,29 +23,32 @@ var versionCmd = &cobra.Command{
 	},
 }
 
-// private root
+// rootCmd is the base command.
 var rootCmd = &cobra.Command{
 	Use:   "nookli",
 	Short: "Nookli CLI — your Knowledge OS command line",
-	Long: `Nookli is a developer tool to manage workspaces, stacks, elements,
+	Long: `Nookli is a developer tool to manage workspaces, stacks, elements
 and dynamic learning paths right from your terminal.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// Initialize the DB (tables etc.)
 		db.InitDB()
 	},
 }
 
-// **THIS** lets tests refer to it as cmd.RootCmd
+// RootCmd exported for tests
 var RootCmd = rootCmd
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+
+	// Register workspace commands
 	rootCmd.AddCommand(workspacecmd.Cmd)
-	// rootCmd.AddCommand(stackcmd.Cmd)    // when you migrate stack
-	// rootCmd.AddCommand(elementcmd.Cmd)
-	// rootCmd.AddCommand(blockcmd.Cmd)
+	// future: rootCmd.AddCommand(stackcmd.Cmd)
+	// future: rootCmd.AddCommand(elementcmd.Cmd)
+	// future: rootCmd.AddCommand(blockcmd.Cmd)
 }
 
-// Execute kicks things off
+// Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -54,7 +56,7 @@ func Execute() {
 	}
 }
 
-// For tests you can also use GetRootCmd()
+// GetRootCmd returns the root for tests.
 func GetRootCmd() *cobra.Command {
 	return rootCmd
 }
